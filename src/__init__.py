@@ -9,10 +9,10 @@ import os
 app = Flask(__name__)
 load_dotenv()
 # Configuração da chave secreta para proteger sessões e outros dados
-app.config['SECRET_KEY'] = os.getenv("SECRETY_KEY")
+app.config['SECRET_KEY'] = "FsjdejefweFRFWG#3452%@%@TRWWewrgwg4rtwghyettwwt254536g"
 
 # Configuração da URI do banco de dados SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI")
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://root:breno19042003@localhost/pizzaria"
 
 # Inicialização do objeto de banco de dados SQLAlchemy
 db = SQLAlchemy(app)

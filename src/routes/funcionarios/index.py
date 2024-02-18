@@ -1,12 +1,15 @@
 from flask import jsonify, request
+from src.config.login import *
+from src.config.verificadorcampo import *
 from src import app, db, bcrypt
 from src.models.models import Funcionarios
 
 # Exibir todos os funcionários
 @app.route('/funcionario', methods=['GET'])
-
-def exibir_funcionarios():
-   
+@token_obrigatorio
+def exibir_funcionarios(funcionario):
+    if not funcionario.administrador:
+        return jsonify({'mensagem': 'Você não tem permissão para alterar esse processo'}), 403 
 
     funcionarios = Funcionarios.query.all()
     listadefuncionarios = []
@@ -22,9 +25,33 @@ def exibir_funcionarios():
 
     return jsonify(listadefuncionarios), 200
 
+#listar garçons
+@app.route('/funcionario/garcons', methods=['GET'])
+@token_obrigatorio
+def exibir_garcons(funcionario):
+    if not funcionario.administrador:
+        return jsonify({'mensagem': 'Você não tem permissão para alterar esse processo'}), 403 
+
+    funcionarios = Funcionarios.query.filter_by(administrador=False).all()
+
+    listadegarcons = []
+
+    for funcionario_ in funcionarios:
+        funcionario_atual = {
+            'matricula': funcionario_.matricula,
+            'nome': funcionario_.nome,
+            'email': funcionario_.email,
+            'administrador': funcionario_.administrador
+        }
+        listadegarcons.append(funcionario_atual)
+    if len(listadegarcons) == 0:
+        return jsonify({'mensagem': 'Ainda não temos nenhum garçon cadastrado'})
+
+    return jsonify({f'Você tem {len(listadegarcons)} garçons cadastrados': listadegarcons}), 200
+
 # Pegar funcionário por matrícula
 @app.route('/funcionario/<int:matricula>', methods=['GET'])
-
+@token_obrigatorio
 def pegar_funcionario_por_matricula(funcionario, matricula):
     if not funcionario.administrador:
         return jsonify({'mensagem': 'Você não tem permissão para alterar esse processo'}), 403
@@ -45,8 +72,11 @@ def pegar_funcionario_por_matricula(funcionario, matricula):
 
 # Cadastrar novo funcionário
 @app.route('/funcionario', methods=['POST'])
-
-def cadastrar_funcionario():
+@token_obrigatorio
+@verifica_campos_tipos(['nome', 'email', 'senha', 'administrador'], {'nome': str, 'email': str, 'senha': str, 'administrador': bool})
+def cadastrar_funcionario(adm):
+    if not adm.administrador:
+        return jsonify({'mensagem': 'Você não tem permissão para alterar esse processo'}), 403
 
     try:
         novo_funcionario = request.get_json()
@@ -74,8 +104,11 @@ def cadastrar_funcionario():
 
 # Alterar funcionário por matrícula
 @app.route('/funcionario/<int:matricula>', methods=['PUT'])
-
-def alterar_funcionario(matricula):
+@token_obrigatorio
+@verifica_alterar(['nome', 'email', 'senha', 'telefone', 'administrador'], {'nome': str, 'email': str, 'senha': str, 'telefone': str, 'administrador': bool})
+def alterar_funcionario(funcionario, matricula):
+    if not funcionario.administrador:
+        return jsonify({'mensagem': 'Você não tem permissão para alterar esse processo'}), 403
 
     try:
         funcionario_alterar = request.get_json()
