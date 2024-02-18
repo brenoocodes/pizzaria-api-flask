@@ -37,22 +37,19 @@ def cadastrar_categoria(adm):
 @verifica_alterar(['nome'], {'nome': str})
 def alterar_categoria(adm, id):
     if not adm.administrador:
-        return jsonify({'Mensagem': 'Você não tem permissão para trocar uma categoria'}), 403
+        return jsonify({'Mensagem': 'Você não tem permissão para trocar uma categoria'})
     try:
         categoria_alterar = request.get_json()
         categoria = Categorias.query.filter_by(id=id).first()
         if not categoria:
-            return jsonify({'Mensagem': 'Essa categoria não está cadastrada'}), 400
-        
+            return jsonify({'Mensagem': 'Essa categoria não está cadastrada'}), 400 
         if 'nome' in categoria_alterar:
-            novo_nome = categoria_alterar['nome']
-            if novo_nome != categoria.nome:
-                categoria_existente = Categorias.query.filter_by(nome=novo_nome).first()
-                if categoria_existente:
-                    return jsonify({'Mensagem': f'Você está tentando alterar o nome da categoria para {novo_nome} e ela já existe.'}), 400
-                categoria.nome = novo_nome
-        db.session.commit()
-        return jsonify({'Mensagem': f'A categoria {categoria.nome} foi alterada com sucesso para {novo_nome}'}), 200
+            nome = categoria_alterar['nome']
+            categoria_existente = Categorias.query.filter_by(nome=nome).first()
+            if categoria_existente:
+                return jsonify({'Mensagem': f'Você está tentando está tentando alterar o nome da categoria para {nome} e ela já existe.'}), 400
+            db.session.commit()
+            return jsonify({'Mensagem': f'A categoria {categoria.nome} foi alterada com sucesso para {nome}'})
     except Exception as e:
         print(e)
-        return jsonify({'Mensagem': 'Erro ao alterar essa categoria'}), 500
+        return jsonify({'Mensagem': 'Erro ao alterar essa categoria'})

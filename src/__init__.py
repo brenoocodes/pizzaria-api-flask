@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 
@@ -19,3 +20,5 @@ db = SQLAlchemy(app)
 
 # Inicialização do objeto Bcrypt para criptografia de senhas
 bcrypt = Bcrypt(app)
+
+cors = CORS(app)
